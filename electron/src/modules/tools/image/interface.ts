@@ -27,6 +27,16 @@ export interface OutputSetting {
   solid_bg: false
 
   /**
+   * 背景颜色
+   */
+  bg_color: string
+
+  /**
+   * 图片质量
+   */
+  quality: string
+
+  /**
    * 背景比例
    */
   bg_rate: {

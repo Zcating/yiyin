@@ -75,7 +75,7 @@ r.listen<any, boolean>(routerConfig.startTask, async (data: StartTaskData, ev, w
     );
 
     // 获取图片Exif信息
-    const exifInfo = await imgTool.getExifInfo();
+    const exifInfo = imgTool.getExifInfo();
 
     // 发送到前端
     maskGenWin.webContents.send(routerConfig.on.createMask, {

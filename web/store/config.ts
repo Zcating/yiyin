@@ -14,6 +14,8 @@ export const config = writable<IConfig>({
     model_show: true,
     brand_show: true,
     solid_bg: false,
+    bg_color: '#ffffff',
+    quality: '90',
     origin_wh_output: true,
     radius: 2.1,
     radius_show: true,

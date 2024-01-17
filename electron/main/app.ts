@@ -85,35 +85,35 @@ export default class Application {
       return;
     }
 
-    const versionInfo = await hasNewVersion().catch((e) => {
-      log.error('版本信息获取失败', e);
-    });
+    // const versionInfo = await hasNewVersion().catch((e) => {
+    //   log.error('版本信息获取失败', e);
+    // });
 
-    log.info('版本信息获取成功', versionInfo);
-    if (!versionInfo) {
-      return;
-    }
+    // log.info('版本信息获取成功', versionInfo);
+    // if (!versionInfo) {
+    //   return;
+    // }
 
-    if (!versionInfo.update) {
-      storeConfig({
-        versionUpdateInfo: {
-          checkDate: dayTs,
-          version: config.versionUpdateInfo.version.replace('v', ''),
-          downloadLink: config.versionUpdateInfo.downloadLink,
-        },
-      });
-      return;
-    }
+    // if (!versionInfo.update) {
+    //   storeConfig({
+    //     versionUpdateInfo: {
+    //       checkDate: dayTs,
+    //       version: config.versionUpdateInfo.version.replace('v', ''),
+    //       downloadLink: config.versionUpdateInfo.downloadLink,
+    //     },
+    //   });
+    //   return;
+    // }
 
     // 写入配置文件，并限制访问的频次
-    storeConfig({
-      versionUpdateInfo: {
-        checkDate: dayTs,
-        version: versionInfo.version,
-        downloadLink: versionInfo.downloadLink,
-      },
-    });
-    this.win.webContents.send(routerConfig.on.assetsUpdate, versionInfo);
+    // storeConfig({
+    //   versionUpdateInfo: {
+    //     checkDate: dayTs,
+    //     version: versionInfo.version,
+    //     downloadLink: versionInfo.downloadLink,
+    //   },
+    // });
+    // this.win.webContents.send(routerConfig.on.assetsUpdate, versionInfo);
   }
 
   private async createDefWin() {

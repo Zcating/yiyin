@@ -103,7 +103,7 @@ export class Image {
     let bgInfo;
     // 生成纯色背景
     if (this.opts.solid_bg) {
-      bgInfo = await this.createSolidImg(w, h, toFilePath);
+      bgInfo = await this.createSolidImg(w, h, toFilePath, this.opts.bg_color);
     } else {
       bgInfo = await this.createBlurImg(w, h, toFilePath);
     }
@@ -214,7 +214,7 @@ export class Image {
     })
       .withMetadata()
       // .toFormat('png', { compressionLevel: 9 })
-      .toFormat('jpeg', { quality: 100 })
+      .toFormat('jpeg', { quality: 50 })
       .composite(composite)
       .toFile(this.fileNames.output, (err) => {
         if (err) rej(err);
@@ -369,7 +369,7 @@ export class Image {
         },
       },
     })
-      .toFormat('jpeg', { quality: 50 })
+      .toFormat('jpeg', { quality: parseInt(this.opts.quality) })
       .toBuffer({ resolveWithObject: true });
 
     fs.writeFileSync(toFilePath, bgInfo.data);

@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Message as toast } from '@ggchivalrous/db-ui';
-  import { Modal, clipboard, initializeStores } from '@skeletonlabs/skeleton';
-  import { config } from '@web/store/config';
-  import { tick } from 'svelte';
-  import './index.scss';
+  import { Message as toast } from "@ggchivalrous/db-ui";
+  import { Modal, clipboard, initializeStores } from "@skeletonlabs/skeleton";
+  import { config } from "@web/store/config";
+  import { tick } from "svelte";
+  import "./index.scss";
 
-  import { Actions, CustomParamSetting, Footer, Header } from './components';
-  import type { IFileInfo, TInputEvent } from './interface';
+  import { Actions, CustomParamSetting, Footer, Header } from "./components";
+  import type { IFileInfo, TInputEvent } from "./interface";
 
   initializeStores();
 
@@ -15,11 +15,11 @@
   let fileSelectDom: HTMLInputElement = null;
   let clipboardDom: HTMLDivElement = null;
 
-  let imgExif = '';
+  let imgExif = "";
   let showSetting = false;
 
   async function onFileChange(ev: TInputEvent) {
-    if (ev.currentTarget && ev.currentTarget.type === 'file') {
+    if (ev.currentTarget && ev.currentTarget.type === "file") {
       const files = ev.currentTarget.files;
       fileUrlList = [];
 
@@ -48,7 +48,7 @@
       }
 
       fileUrlList = [];
-      fileSelectDom.value = '';
+      fileSelectDom.value = "";
       processing = false;
     }
   }
@@ -61,10 +61,10 @@
         imgExif = JSON.stringify(info.data, null, 2);
         await tick();
         clipboardDom.click();
-        toast.success('复制成功');
+        toast.success("复制成功");
       }
     } else {
-      toast.info('请选择一张图片');
+      toast.info("请选择一张图片");
     }
   }
 </script>
@@ -85,7 +85,17 @@
         <div class="button grass" on:click={generatePictureFrames} on:keypress role="button" tabindex="-1">生成印框</div>
         <div class="button grass" on:click={getExitInfo} on:keypress role="button" tabindex="-1">相机信息</div>
         <div style="display: none;" use:clipboard={imgExif} bind:this={clipboardDom}></div>
-        <div class="button grass" on:click={() => { showSetting = true; }} on:keypress role="button" tabindex="-1">自定义参数</div>
+        <div
+          class="button grass"
+          on:click={() => {
+            showSetting = true;
+          }}
+          on:keypress
+          role="button"
+          tabindex="-1"
+        >
+          自定义参数
+        </div>
       {:else}
         印框生成中...
       {/if}
