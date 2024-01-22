@@ -9,7 +9,7 @@ export function calcAverageBrightness(ctx: CanvasRenderingContext2D, width: numb
   let totalBrightness = 0;
 
   for (let i = 0; i < data.length; i += 4) {
-  // 简单的亮度计算方法
+    // 简单的亮度计算方法
     const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
     totalBrightness += brightness;
   }

@@ -26,9 +26,7 @@ export interface IConfig {
    */
   font: {
     path: string
-
     dir: string
-
     map: Record<string, string>
   }
 

@@ -86,6 +86,10 @@ export async function formatExifInfo(exifInfo: ExifInfo) {
     }
   }
 
+  if (exifInfo.LensModel) {
+    exif.LensModel.value = exifInfo.LensModel;
+  }
+
   if (exifInfo.FocalLength) {
     exif.FocalLength.value = `${Math.round(exifInfo.FocalLength)}mm`;
   }
@@ -116,7 +120,23 @@ export async function formatExifInfo(exifInfo: ExifInfo) {
  * @returns
  */
 export function fillTemplateFieldInfo(templateFieldConf: TTemplateFieldInfo, exifInfo?: TTemplateFieldInfo) {
+  const _config = get(config);
+
   exifInfo = exifInfo || {};
+  // exifInfo.Watermark = {
+  //   use: true,
+  //   type: 'text',
+  //   value: _config.options.watermark,
+  //   bImg: '',
+  //   wImg: '',
+  //   param: {
+  //     use: false,
+  //     bold: false,
+  //     italic: false,
+  //     size: 0,
+  //     font: '',
+  //   },
+  // };
 
   for (const field in templateFieldConf) {
     const info = templateFieldConf[field];
@@ -137,11 +157,11 @@ export function fillTemplateFieldInfo(templateFieldConf: TTemplateFieldInfo, exi
       };
     }
 
-    const _config = get(config);
     // TODO: 后续废弃，后续只需要是否使用某条模版即可
     // 不显示型号
     if (field === 'Model' && !_config.options.model_show) {
       exifInfo[field].value = '';
+      exifInfo.LensModel.value = '';
       continue;
     }
 

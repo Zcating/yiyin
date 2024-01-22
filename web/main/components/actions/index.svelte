@@ -1,6 +1,6 @@
 <script lang="ts">
   import ActionItem from "@components/action-item";
-  import { Switch } from "@ggchivalrous/db-ui";
+  import { Switch, Input } from "@ggchivalrous/db-ui";
   import { config } from "@web/store/config";
 
   import type { IConfig, TInputEvent } from "../../interface";
@@ -131,6 +131,9 @@
         <ColorList bind:value={$config.options.bg_color} />
       </ActionItem>
     {/if}
+    <ActionItem {labelWidth} title="水印文本">
+      <Switch bind:value={$config.options.watermark} />
+    </ActionItem>
   </div>
 
   <div class="app-action-right-wrap">

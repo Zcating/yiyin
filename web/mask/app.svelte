@@ -8,6 +8,7 @@
   } from './interface';
   import { calcAverageBrightness, createCanvas, importFont, loadImage } from './main';
   import * as utils from './utils';
+  import { get } from 'svelte/store';
 
   let canvas: HTMLCanvasElement;
   let taskList: ITaskInfo[] = [];
@@ -19,7 +20,6 @@
   $: importFont(fontList);
 
   window.api['on:createMask']((info: ITaskInfo) => {
-    console.log(info);
     taskList.push(info);
     taskList = taskList;
   });
@@ -36,32 +36,20 @@
         const templateFieldsConf = await utils.getTemplateFieldsConf(task.exifInfo, {
           bgHeight: task.bgImgSize.h,
         });
-
-        let textImgList = await createTextList([
-          {
-            text: '{Make} {Model}',
-            opts: {
-              width: task.bgImgSize.w,
-              size: task.bgImgSize.h * 0.035,
-              color: task.option.solid_bg ? '#000' : '#fff',
-              font: task.option.font,
-              bold: true,
-              italic: false,
-            },
-          },
-          {
-            text: '{FocalLength} {FNumber} {ExposureTime} {ISO} {PersonalSign}',
-            opts: {
-              width: task.bgImgSize.w,
-              size: task.bgImgSize.h * 0.02,
-              color: task.option.solid_bg ? '#000' : '#fff',
-              font: task.option.font,
-              bold: true,
-              italic: false,
-            },
-          },
-        ], templateFieldsConf);
-
+        
+        let textImgList = await createTextList([], templateFieldsConf);
+        const watermark = task.name.replace(/\.(jpg|jpeg|png)/i, "");
+        if (get(config).options.watermark) {
+          textImgList.push(createTextImg([watermark], {
+            width: task.bgImgSize.w,
+            size: task.bgImgSize.h * 0.05,
+            color: task.option.solid_bg ? '#000' : '#fff',
+            font: task.option.font,
+            bold: true,
+            italic: false,
+          }));
+        }
+        
         const {
           contentHeight,
           contentTop,
@@ -82,32 +70,21 @@
           continue;
         }
         const bgImg = await loadImage(bgImgInfo.data);
-        textImgList = await createTextList([
-          {
-            text: '{Make} {Model}',
-            opts: {
-              width: bgImg.width,
-              size: bgImg.height * 0.035,
-              color: task.option.solid_bg ? '#000' : '#fff',
-              font: task.option.font,
-              bold: true,
-              italic: false,
-            },
-          },
-          {
-            text: '{FocalLength} {FNumber} {ExposureTime} {ISO} {PersonalSign}',
-            opts: {
-              width: bgImg.width,
-              size: bgImg.height * 0.02,
-              color: task.option.solid_bg ? '#000' : '#fff',
-              font: task.option.font,
-              bold: true,
-              italic: false,
-            },
-          },
-        ], templateFieldsConf);
+        textImgList = await createTextList([], templateFieldsConf);
 
-        const _bgImgInfo = await createBoxShadowMark(canvas, {
+        // 加水印
+        if (get(config).options.watermark) {
+          textImgList.push(createTextImg([watermark], {
+            width: bgImg.width,
+            size: bgImg.height * 0.05,
+            color: task.option.solid_bg ? '#000' : '#fff',
+            font: task.option.font,
+            bold: true,
+            italic: false,
+          }));
+        }
+
+        const _bgImgInfo = createBoxShadowMark(canvas, {
           img: bgImg,
           contentImg: mainImg,
           contentHeight,
@@ -139,7 +116,7 @@
           option: task.option,
         });
       } catch (e) {
-        console.log(e);
+        console.error(e);
 
         await window.api.compositeFail({
           name: task.name,
@@ -155,7 +132,7 @@
   function calcContentOffsetInfo(task: ITaskInfo, textImgList: IImgFileInfo[]) {
     const textOffset = task.bgImgSize.h * 0.009;
     const mainImgTopOffset = task.bgImgSize.h * 0.036;
-    const textButtomOffset = task.bgImgSize.h * 0.027;
+    const textButtomOffset = task.bgImgSize.h * 0.05;
 
     // 主图上下间隔最小间隔
     let mainImgOffset = mainImgTopOffset * 2;
@@ -219,7 +196,7 @@
     }
 
     const contentOffsetX = Math.round((_canvas.width - option.contentImg.width) / 2);
-    const contentOffsetY = option.contentTop;
+    const contentOffsetY = contentOffsetX || option.contentTop;
 
     if (option.shadow.blur) {
       ctx.shadowOffsetX = option.shadow.offsetX || 0; // 阴影水平偏移
@@ -286,7 +263,6 @@
 
   async function createTextList(templateList: ITemplateItem[], templateFieldsConf: Awaited<ReturnType<typeof utils.getTemplateFieldsConf>>): Promise<IImgFileInfo[]> {
     const imgFileInfoList: IImgFileInfo[] = [];
-    console.log('模版字段信息', templateFieldsConf);
 
     for (const i of templateList) {
       let text = i.text.trim();
@@ -300,6 +276,7 @@
           const info = templateFieldsConf[field];
 
           text = text.replace(temp, '{---}');
+
           const slotInfo: ISlotInfo = {
             value: '',
             param: info.param,
@@ -307,7 +284,10 @@
 
           if (info.type === 'text') {
             slotInfo.value = info.value;
-          } else {
+          } else if (info.type === 'img') {
+            if (!info.value) {
+              continue;
+            }
             if ($config.options.solid_bg) {
               if (!info.bImg || info.bImg === 'false') {
                 continue;
@@ -323,6 +303,7 @@
         }
 
         const _arr = text.split('{---}');
+
         for (let j = 0; j < _arr.length; j++) {
           if (slotInfoList[j]?.value) {
             textList.push(_arr[j], slotInfoList[j]);
@@ -331,7 +312,6 @@
       } else {
         textList.push(text);
       }
-
       imgFileInfoList.push(createTextImg(textList, i.opts));
     }
 
@@ -363,10 +343,8 @@
     }
 
     if (_opts.font) {
-      font += `${_opts.font},`;
+      font += 'Silver';
     }
-
-    font += '"PingFang SC"';
 
     return font;
   }
@@ -415,6 +393,7 @@
         }
       }
     }
+
 
     ctx.font = createTextFont(maxFontOpt);
     ctx.textBaseline = 'middle';

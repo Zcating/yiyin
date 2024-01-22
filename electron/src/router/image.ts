@@ -86,6 +86,7 @@ r.listen<any, boolean>(routerConfig.startTask, async (data: StartTaskData, ev, w
       mainImgInfo,
       option: data.option,
     });
+
     win.webContents.send(routerConfig.on.progress, {
       path: url,
       md5: imgTool.md5,

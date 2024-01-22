@@ -256,6 +256,7 @@ export class Image {
       }
 
       const info = ExifParser.create(imgBuffer).parse();
+
       return info?.tags;
     }, null, (e) => log.error('图片 %s 相机参数获取失败', this.imgPath, e.message));
   }
@@ -369,7 +370,7 @@ export class Image {
         },
       },
     })
-      .toFormat('jpeg', { quality: parseInt(this.opts.quality) })
+      .toFormat('jpeg', { quality: parseInt(this.opts.quality, 10) })
       .toBuffer({ resolveWithObject: true });
 
     fs.writeFileSync(toFilePath, bgInfo.data);

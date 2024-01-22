@@ -71,6 +71,11 @@ export interface OutputSetting {
    * 选中的字体
    */
   font: string
+
+  /**
+   * 水印
+   */
+  watermark: boolean
 }
 
 export interface ImgInfo {

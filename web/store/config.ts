@@ -23,6 +23,7 @@ export const config = writable<IConfig>({
     shadow_show: true,
     bg_rate_show: true,
     font: '',
+    watermark: true,
     bg_rate: {
       w: 0,
       h: 0,
